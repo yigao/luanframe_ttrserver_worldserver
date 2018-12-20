@@ -425,8 +425,16 @@ function FriendManager:UserLoginFriend(uid, zonetask)
     friendData:SetOnline()
     friendData:ClearLastLogoutTime()
 
+    local req = { }
+    req["do"] = "Cmd.ForceUserOffline_C"
+    req["data"] = {
+        cmd_uid = uid,
+    }
+    ZoneInfo.SendCmdToAll(req["do"], req["data"], zonetask.GetGameId(), zonetask.GetZoneId())
+
     friendData.gameid = zonetask.GetGameId()
-	friendData.zoneid = zonetask.GetZoneId()
+    friendData.zoneid = zonetask.GetZoneId()
+
 
     if friendData.autorecommendtimer == nil then
         friendData.autorecommendtimer = unilight.addtimer("FriendManager.SystemAutoRecommendFriend", static_const.Static_Const_Friend_System_Auto_Recommend_Time, uid)
@@ -440,9 +448,6 @@ function FriendManager:UserLogoutFriend(uid)
     local friendData = self:GetOrNewFriendInfo(uid)
     friendData:SetOffline()
     friendData:SetLastLogoutTime()
-
-    friendData.gameid = 0
-	friendData.zoneid = 0
 
     friendData:ClearOfflineChange()
     FriendManager:SaveDataToDb(friendData)
@@ -517,7 +522,7 @@ function FriendManager.NotifyDailyTaskAddProgress(zonetask, friendinfo, event, t
         times = times,
     }
     if friendinfo.gameid == 0 or friendinfo.zoneid == 0 then
-        ZoneInfo.SendCmdToMe(res["do"], res["data"], zonetask)
+        ZoneInfo.SendCmdToFirst(res["do"], res["data"])
     else
         ZoneInfo.SendCmdToMeById(res["do"], res["data"], friendinfo.gameid, friendinfo.zoneid)
     end
@@ -533,7 +538,7 @@ function FriendManager.NotifyAchieveTaskAddProgress(zonetask, friendinfo, event,
         times = times,
     }
     if friendinfo.gameid == 0 or friendinfo.zoneid == 0 then
-        ZoneInfo.SendCmdToMe(res["do"], res["data"], zonetask)
+        ZoneInfo.SendCmdToFirst(res["do"], res["data"])
     else
         ZoneInfo.SendCmdToMeById(res["do"], res["data"], friendinfo.gameid, friendinfo.zoneid)
     end
@@ -549,7 +554,7 @@ function FriendManager.NotifyMainTaskAddProgress(zonetask, friendinfo, event, ti
         times = times,
     }
     if friendinfo.gameid == 0 or friendinfo.zoneid == 0 then
-        ZoneInfo.SendCmdToMe(res["do"], res["data"], zonetask)
+        ZoneInfo.SendCmdToFirst(res["do"], res["data"])
     else
         ZoneInfo.SendCmdToMeById(res["do"], res["data"], friendinfo.gameid, friendinfo.zoneid)
     end
@@ -564,7 +569,7 @@ function FriendManager.AddUserMoney(zonetask, friendinfo, moneytype, moneynum)
         moneynum = moneynum,
     }
     if friendinfo.gameid == 0 or friendinfo.zoneid == 0 then
-        ZoneInfo.SendCmdToMe(res["do"], res["data"], zonetask)
+        ZoneInfo.SendCmdToFirst(res["do"], res["data"])
     else
         ZoneInfo.SendCmdToMeById(res["do"], res["data"], friendinfo.gameid, friendinfo.zoneid)
     end
@@ -579,7 +584,7 @@ function FriendManager.SubUserMoney(zonetask, friendinfo, moneytype, moneynum)
         moneynum = moneynum,
     }
     if friendinfo.gameid == 0 or friendinfo.zoneid == 0 then
-        ZoneInfo.SendCmdToMe(res["do"], res["data"], zonetask)
+        ZoneInfo.SendCmdToFirst(res["do"], res["data"])
     else
         ZoneInfo.SendCmdToMeById(res["do"], res["data"], friendinfo.gameid, friendinfo.zoneid)
     end
@@ -594,7 +599,7 @@ function FriendManager.UseItem(zonetask, friendinfo, itemid, itemnum)
         itemnum = itemnum,
     }
     if friendinfo.gameid == 0 or friendinfo.zoneid == 0 then
-        ZoneInfo.SendCmdToMe(res["do"], res["data"], zonetask)
+        ZoneInfo.SendCmdToFirst(res["do"], res["data"])
     else
         ZoneInfo.SendCmdToMeById(res["do"], res["data"], friendinfo.gameid, friendinfo.zoneid)
     end

@@ -32,8 +32,6 @@ Zone.CmdBeAskedPlayGame_C = function(cmd,zonetask)
     end
 
     local askFriendData = FriendManager:GetFriendInfo(ask_uid);
-    --玩家可能不在线,设置离线数据被该标志
-    askFriendData:SetOfflineChange()
 
     if askFriendData == nil then
         res["data"] = {
@@ -44,6 +42,9 @@ Zone.CmdBeAskedPlayGame_C = function(cmd,zonetask)
         ZoneInfo.SendCmdToMe(res["do"], res["data"], zonetask)
         return
     end
+
+    --玩家可能不在线,设置离线数据被该标志
+    askFriendData:SetOfflineChange()
 
     --unilight.debug("玩家(" .. askFriendData:GetName() .. ") 成功邀请了 玩家(" .. friendData:GetName() .. ") 玩游戏")
 
@@ -325,8 +326,6 @@ Zone.CmdSendReqAddFriendCmd_C = function(cmd,zonetask)
 
     --如果对方不在线， 查询保留的申请信息，如果有你，说明你多次申请了
     local askFriendData = FriendManager:GetFriendInfo(ask_uid);
-    --玩家可能不在线,设置离线数据被该标志
-    askFriendData:SetOfflineChange()
 
     if askFriendData == nil then
         res["data"] = {
@@ -337,6 +336,9 @@ Zone.CmdSendReqAddFriendCmd_C = function(cmd,zonetask)
         ZoneInfo.SendCmdToMe(res["do"], res["data"], zonetask)
         return
     end
+
+    --玩家可能不在线,设置离线数据被该标志
+    askFriendData:SetOfflineChange()
 
     --记录今天邀请过的好友
     friendData:AddTodayAskedFriends(ask_uid)
@@ -517,6 +519,16 @@ Zone.CmdSendReqDeleteFriendCmd_C = function(cmd,zonetask)
     --玩家可能不在线,设置离线数据被该标志
     friendData:SetOfflineChange()
 
+    if delFriendData == nil then
+        res["data"] = {
+            cmd_uid = uid,
+            resultCode = 1,
+            desc = "数据出错"
+        }
+        ZoneInfo.SendCmdToMe(res["do"], res["data"], zonetask)
+        return
+    end
+    
     --玩家可能不在线,设置离线数据被该标志
     delFriendData:SetOfflineChange()
 

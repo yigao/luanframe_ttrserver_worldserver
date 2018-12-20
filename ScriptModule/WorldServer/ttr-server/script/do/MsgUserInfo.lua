@@ -141,3 +141,16 @@ Zone.CmdSaveSettingsCmd_C = function(cmd,zonetask)
 	local friendData = FriendManager:GetOrNewFriendInfo(uid)
 	friendData:SetUserSimpleData(userInfo.star, userInfo.gender, userInfo.signature, userInfo.area, userInfo.horoscope)
 end
+
+--逻辑服务器彻底掉线
+Zone.CmdUserInfoDateFromMemory_C = function(cmd,zonetask)
+    local uid = cmd.data.cmd_uid
+
+    --暂时保存一份在好友系统里, 以后可能要做别的处理
+	local friendData = FriendManager:GetOrNewFriendInfo(uid)
+
+	if friendData.gameid == zonetask.GetGameId() and friendData.zoneid == zonetask.GetZoneId() then
+		friendData.gameid = 0
+		friendData.zoneid = 0
+	end
+end

@@ -43,28 +43,31 @@ end
 function WorldServerModule.WorldServerNetEvent(nEvent, unLinkId)
     local cmd = {}
     if nEvent == NF_MSG_TYPE.eMsgType_CONNECTED then
-        local cmd = {}
-        local zonetask = {
-
-        }
-        Zone.zone_connect(cmd, zonetask) 
     end
     if nEvent == NF_MSG_TYPE.eMsgType_DISCONNECTED then
-        local gameServer = WorldServerModule.worldServerModule:GetGameByLink(unLinkId)
-        local serverId = gameServer.ServerId
         local cmd = {}
         local zonetask = {
             unLinkId = unLinkId,
-            serverId = serverId,
         }
-        Lby.lobby_disconnect(cmd, GameServerModule.LobbyTask)
+        local gameServer = WorldServerModule.worldServerModule:GetGameByLink(unLinkId)
+        if gameServer ~= nil then
+            zonetask.serverId = gameServer.ServerId
+        else
+            zonetask.serverId = 0
+        end
+        Zone.zone_disconnect(cmd, zonetask)
     end
 end
 
 --特殊协议
 function WorldServerModule.GameRecvHandleJson(unLinkId, valueId, nMsgId, strMsg)
-    unilight.debug(tostring(valueId) .. " | recv game msg |" .. strMsg)
     local table_msg = json2table(strMsg)
+    if type(table_msg["do"]) == "string" then
+        if table_msg["do"] == "Cmd.UserUpdate_C" then
+        else
+            unilight.debug(tostring(valueId) .. " | recv game msg |" .. strMsg)
+        end
+    end
     --协议规则
     if table_msg ~= nil then
         local cmd = table_msg["do"]
@@ -77,7 +80,7 @@ function WorldServerModule.GameRecvHandleJson(unLinkId, valueId, nMsgId, strMsg)
 
                     local gameServer = WorldServerModule.worldServerModule:GetGameByLink(unLinkId)
                     local serverId = gameServer.ServerId
-                    ZoneInfo[serverId] = unLinkId
+                    ZoneInfo.ZoneTaskMap[serverId] = unLinkId
                     local zonetask = {
                         unLinkId = unLinkId,
                         serverId = serverId,
@@ -87,7 +90,7 @@ function WorldServerModule.GameRecvHandleJson(unLinkId, valueId, nMsgId, strMsg)
                         end,
 
                         GetZoneId = function()
-                            return zoneId
+                            return serverId
                         end,
                     }
                     Zone[strcmd](table_msg, zonetask)
