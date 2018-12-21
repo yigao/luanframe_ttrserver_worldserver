@@ -11,11 +11,9 @@ end
 WorldServerModule.worldServerModule = nil
 
 function WorldServerModule.Init()
-    unilight.initmongodb('mongodb://14.17.104.12:28900', "ttr-1")
     Do.dbready()
 
     local pluginManager = LuaNFrame:GetPluginManager()
-    WorldServerModule.worldServerModule = pluginManager:GetWorldServerModule()
     
     TcpServer.addRecvCallBack(NF_SERVER_TYPES.NF_ST_WORLD, 0, "WorldServerModule.GameRecvHandleJson")
 
