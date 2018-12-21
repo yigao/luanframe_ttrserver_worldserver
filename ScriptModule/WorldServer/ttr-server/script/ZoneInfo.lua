@@ -17,10 +17,10 @@ Zone.zone_change_props = function(cmd, zonetask)
 end
 
 ZoneInfo.SendCmdToMe = function(doinfo, data, zonetask)
-    --if type(doinfo) ~= "string" or type(data) ~= "table" then
-    --   unilight.error("Zone.SendCmdToMe param error.........type(doinfo):"..type(doinfo).." type(data)" .. type(data))
-    --   return
-    --end
+    if type(doinfo) ~= "string" or type(data) ~= "table" then
+       unilight.error("Zone.SendCmdToMe param error.........type(doinfo):"..type(doinfo).." type(data)" .. type(data))
+       return
+    end
     local send = {}
     send["do"] = doinfo
     send["data"] = data

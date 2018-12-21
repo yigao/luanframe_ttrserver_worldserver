@@ -18,7 +18,8 @@ function WorldServerModule.Init()
     WorldServerModule.worldServerModule = pluginManager:GetWorldServerModule()
     
     TcpServer.addRecvCallBack(NF_SERVER_TYPES.NF_ST_WORLD, 0, "WorldServerModule.GameRecvHandleJson")
-    TcpServer.addEventCallBack(NF_SERVER_TYPES.NF_ST_WORLD, "WorldServerModule.WorldServerNetEvent")
+
+    unilight.AddServerEventCallBack(NF_SERVER_TYPES.NF_ST_WORLD, NF_SERVER_TYPES.NF_ST_GAME, "WorldServerModule.WorldServerNetEvent")
 
     unilight.response = function(w, req)
 		req.st = os.time()
@@ -40,22 +41,13 @@ function WorldServerModule.Init()
     InitTimer()
 end
 
-function WorldServerModule.WorldServerNetEvent(nEvent, unLinkId)
+function WorldServerModule.WorldServerNetEvent(nEvent, unLinkId, serverData)
     local cmd = {}
     if nEvent == NF_MSG_TYPE.eMsgType_CONNECTED then
+        Zone.zone_connect(cmd, serverData)
     end
     if nEvent == NF_MSG_TYPE.eMsgType_DISCONNECTED then
-        local cmd = {}
-        local zonetask = {
-            unLinkId = unLinkId,
-        }
-        local gameServer = WorldServerModule.worldServerModule:GetGameByLink(unLinkId)
-        if gameServer ~= nil then
-            zonetask.serverId = gameServer.ServerId
-        else
-            zonetask.serverId = 0
-        end
-        Zone.zone_disconnect(cmd, zonetask)
+        Zone.zone_disconnect(cmd, serverData)
     end
 end
 
@@ -77,23 +69,10 @@ function WorldServerModule.GameRecvHandleJson(unLinkId, valueId, nMsgId, strMsg)
             if strcmd ~= "" then
                 strcmd = "Cmd" .. strcmd
                 if type(Zone[strcmd]) == "function" then
-
-                    local gameServer = WorldServerModule.worldServerModule:GetGameByLink(unLinkId)
-                    local serverId = gameServer.ServerId
-                    ZoneInfo.ZoneTaskMap[serverId] = unLinkId
-                    local zonetask = {
-                        unLinkId = unLinkId,
-                        serverId = serverId,
-
-                        GetGameId = function()
-                            return serverId
-                        end,
-
-                        GetZoneId = function()
-                            return serverId
-                        end,
-                    }
-                    Zone[strcmd](table_msg, zonetask)
+                    local zonetask = ZoneInfo.ZoneLinkTaskMap[unLinkId]
+                    if zonetask ~= nil then
+                        Zone[strcmd](table_msg, zonetask)
+                    end
                 end
             end
         end
@@ -116,15 +95,4 @@ end
 
 function WorldServerModule.Shut()
 
-end
-
-Zone.CmdTestZoneConnectSendMsg_S = function(cmd,zonetask)
-	unilight.info("收到游戏服数据:TestZoneConnectSendMsg_S:")
-
-	local data = {}
-	ZoneInfo.SendCmdToMe("Cmd.TestLobbySenMsgCmd_S", data, zonetask)
-end
-
-Zone.CmdSendMsgToLobby2_S = function(cmd, zonetask)
-	unilight.debug("Zone.CmdSendMsgToLobby2_S test Finish")
 end
