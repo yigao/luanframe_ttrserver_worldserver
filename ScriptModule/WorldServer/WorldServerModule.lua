@@ -1,19 +1,9 @@
 WorldServerModule = {}
 
-StartOver = StartOver or function()
-
-end
-
-InitTimer = InitTimer or function()
-    -- body
-end
-
-WorldServerModule.worldServerModule = nil
-
 function WorldServerModule.Init()
-    Do.dbready()
-
-    local pluginManager = LuaNFrame:GetPluginManager()
+    unilight.createdb("friendinfo","uid")					-- 玩家好友信息
+    unilight.createdb("userQQAppId", "uid")					-- 玩家QQAPPID信息
+    unilight.createdb("ranklist", "uid")					-- 排行榜数据库信息
     
     TcpServer.addRecvCallBack(NF_SERVER_TYPES.NF_ST_WORLD, 0, "WorldServerModule.GameRecvHandleJson")
 
@@ -34,9 +24,7 @@ function WorldServerModule.Init()
     if FriendManager ~= nil then
         FriendManager:Init()
     end
-    --StartOver()
 
-    InitTimer()
 end
 
 function WorldServerModule.WorldServerNetEvent(nEvent, unLinkId, serverData)
